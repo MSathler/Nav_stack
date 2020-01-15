@@ -195,6 +195,10 @@ class odometry:
             v_robot = (self.wheel_radius / 2) * (velocity_right + velocity_left)
             w_robot = (self.wheel_radius / 2) * (velocity_right / L - velocity_left / L )
             
+            # Velocity in the XY plane
+            x_robot = v_robot * cos(self.th)
+            y_robot = v_robot * sin(self.th)     
+            
             if (velocity_right == velocity_left):
                 self.th = self.th
                 self.x += v_robot * dt * cos(self.th)

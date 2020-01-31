@@ -2,13 +2,10 @@
 
 """
 This node receives the motors telemetry from the espeleorobo and calculates the odometry based on the wheels velocity
-
 It subscribes to the wheels velocities in ros_eposmcd/motor1 to motor6, published by ros_eposmcd
 It publishes the odometry to odom topic
-
 It can calculate the odometry using differential or skidsteering kinematic models, 
 just change the flag skid_steer to 1 if you want skid steer or to 0 if you want differential
-
 The parameters used both for robot and skidsteer come from Eduardo Cota master thesis
 """
 
@@ -144,26 +141,19 @@ class odometry:
         else:
 
             """
-
             # Linear velocity
             v_robot = (velocity_right + velocity_left) / 2
-
             # Angular velocity
             w_robot = (velocity_right - velocity_left) / self.robot_width
-
             ### Differential model
-
             # Velocity in the XY plane
             x_robot = v_robot * cos(self.th)
             y_robot = v_robot * sin(self.th)
-
-
             # Calculating odometry
             dt = (self.current_time - self.last_time).to_sec()
             delta_x = (x_robot * cos(self.th) - y_robot * sin(self.th)) * dt
             delta_y = (x_robot * sin(self.th) + y_robot * cos(self.th)) * dt
             delta_th = w_robot * dt
-
             # Integrating pose
             self.x += delta_x
             self.y += delta_y
@@ -175,15 +165,12 @@ class odometry:
 
             """
             dt = (self.current_time - self.last_time).to_sec()
-
             d_center = (velocity_right + velocity_left)*dt / 2
             delta_th = (velocity_right - velocity_left)*dt / self.robot_width
             r_center = d_center/delta_th
-
             self.x += r_center * (-sin(self.th) + sin(delta_th)*cos(self.th) + sin(self.th)*cos(delta_th))
             self.y += r_center * (cos(self.th) - cos(delta_th)*cos(self.th) + sin(self.th)*sin(delta_th))
             self.th += delta_th
-
             """
 
 
@@ -195,10 +182,11 @@ class odometry:
             v_robot = (self.wheel_radius / 2) * (velocity_right + velocity_left)
             w_robot = (self.wheel_radius / 2) * (velocity_right / L - velocity_left / L )
             
-            # Velocity in the XY plane
+	    # Velocity in the XY plane
             x_robot = v_robot * cos(self.th)
-            y_robot = v_robot * sin(self.th)     
-            
+            y_robot = v_robot * sin(self.th)
+	
+
             if (velocity_right == velocity_left):
                 self.th = self.th
                 self.x += v_robot * dt * cos(self.th)
@@ -214,6 +202,7 @@ class odometry:
                 self.y += r_center * (cos(self.th + delta_th) - cos(self.th))
                 self.th += delta_th
             
+
             
 
 

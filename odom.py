@@ -108,16 +108,16 @@ class odometry:
         self.current_time = rospy.Time.now()
 
         # velocities of each side of the robot, the average of the wheels velocities in RPM
-        velocity_left_rpm = (self.motor_velocity1 + self.motor_velocity2 + self.motor_velocity3)/(self.reduction * 3)
-        velocity_right_rpm = (self.motor_velocity4 + self.motor_velocity5 + self.motor_velocity6)/(self.reduction * 3)
+        velocity_left_rpm = ((self.motor_velocity1 + self.motor_velocity2 + self.motor_velocity3))/(self.reduction * 3)
+        velocity_right_rpm = ((self.motor_velocity4 + self.motor_velocity5 + self.motor_velocity6))/(self.reduction * 3)
 
         # RPM to rad/s, and multiplying by the wheel_radius
         # Changed RPM to rad/s constant value from  0.10471675688 to 0.10471975511965977 -> (2*pi)/60
         velocity_right = - (0.10471975511965977) * velocity_right_rpm #* self.wheel_radius   
         velocity_left = ((0.10471975511965977) * velocity_left_rpm) #* self.wheel_radius)
 	
-#	rospy.loginfo("Roda direita " + str(velocity_right))
-#	rospy.loginfo("Roda esquerda " + str(velocity_left))      
+	rospy.loginfo("Roda direita " + str(velocity_right))
+	rospy.loginfo("Roda esquerda " + str(velocity_left))      
 
 
         if self.skid_steer:
@@ -127,7 +127,7 @@ class odometry:
             v_robot = (velocity_right + velocity_left)*(self.alpha_skid/2)
 
             # Angular velocity
-            w_robot = (velocity_right - velocity_left)*(self.alpha_skid/(2*self.ycir_skid))
+            w_robot = ((velocity_right - velocity_left)*(self.alpha_skid/(2*self.ycir_skid)))
 
             # Velocity in the XY plane
             x_robot = v_robot * cos(self.th)
@@ -188,30 +188,29 @@ class odometry:
             
 
 	
-            v_robot = (self.wheel_radius / 2) * (velocity_right + velocity_left)
+            v_robot = (self.wheel_radius / 2) * (velocity_right + velocity_left) #* dt
             #w_robot = (velocity_right - velocity_left) / L
 	    w_robot = (self.wheel_radius / 2) *(velocity_right / L - velocity_left / L ) *dt 
 	    
-	    rospy.loginfo(str(velocity_right) + "R")
-	    rospy.loginfo(str(velocity_left) + "L")
-	    #rospy.loginfo(str(w_robot) + "A")
 
 	               
 
 	    # Velocity in the XY plane
             x_robot = v_robot * cos(self.th)
-            y_robot = v_robot * sin(self.th)
+            y_robot = - v_robot * sin(self.th)
 	    
 
-	    Ds = ((velocity_right + velocity_left / 2) * dt) * (self.wheel_radius / 2)
-	    Dth = ((velocity_right - velocity_left / 2 * L) * dt) * (self.wheel_radius / 2)
+	    #Ds = ((velocity_right + velocity_left / 2) * dt) * (self.wheel_radius / 2)
+	    #Dth = ((velocity_right - velocity_left / 2 * L) * dt) * (self.wheel_radius / 2)
 
-            if ((velocity_right - velocity_left) <= 0.15 & (velocity_right - velocity_left) >= 0):
+	    #if ((velocity_right - velocity_left) <= 0.15 and (velocity_right - velocity_left) >= 0):
+            if (velocity_right == velocity_left) :
 		rospy.loginfo("1")
                 self.th = self.th
                 self.x += x_robot * dt * cos(self.th)
                 self.y += y_robot * dt * sin(self.th)
-            elif ((velocity_right + velocity_left) <= 0.15 & (velocity_right + velocity_left) >= 0):
+            #elif ((velocity_right + velocity_left) <= 0.15 and (velocity_right + velocity_left) >= 0):
+	    elif (velocity_right == -velocity_left):
 		rospy.loginfo("2")
                 self.th += w_robot * dt
                 self.x = self.x
